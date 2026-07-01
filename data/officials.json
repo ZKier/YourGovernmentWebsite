@@ -1,0 +1,22 @@
+{
+  "brian_kemp": {
+    "name": "Brian Kemp",
+    "title": "Governor",
+    "party": "Republican",
+    "photo": "images/Georgia-Brian_Kemp-2019.jpg"
+  },
+
+  "raphael_warnock": {
+    "name": "Raphael Warnock",
+    "title": "U.S. Senator",
+    "party": "Democrat",
+    "photo": "images/Raphael_Warnock_official_photo.jpg"
+  },
+
+  "jon_ossoff": {
+    "name": "Raphael Warnock",
+    "title": "U.S. Senator",
+    "party": "Democrat",
+    "photo": "images/JonOssoff.jpg"
+  }
+}
