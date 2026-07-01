@@ -1,0 +1,22 @@
+{
+  "c13121": {
+    "county": "Fulton County",
+    "state": "Georgia",
+    "governor": "brian_kemp",
+    "senators": ["jon_ossoff", "raphael_warnock"]
+  },
+
+  "c13089": {
+    "county": "DeKalb County",
+    "state": "Georgia",
+    "governor": "Brian Kemp",
+    "senators": ["Jon Ossoff", "Raphael Warnock"]
+  },
+
+  "c13185": {
+    "county": "Lowndes County",
+    "state": "Georgia",
+    "governor": "Brian Kemp",
+    "senators": ["Jon Ossoff", "Raphael Warnock"]
+  }
+}

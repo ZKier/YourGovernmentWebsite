@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Government Map</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  
+  <div class="layout">
+    <div id="map-container"></div>
+
+    <div class="info-panel">
+      <div class="info-panel-header">
+        <div id="header">
+          Government Map
+        </div>
+        <div class="sidebar-icon">
+          <img src="svg/sidebar-minimalistic-svgrepo-com(1).svg" alt="sidebar icon" width="30" height="30">
+        </div>
+
+      </div>
+      
+      <div>
+        <hr>
+      </div>
+
+      <div id="info-panel-top" class="info-panel-top">
+        <div id="nation-dropdown-bar" class="dropdown-bar">
+          <div id="dropdown-indicator" class="dropdown-indicator">
+            <img src="svg\side-arrow.svg" alt="closed dropdown arrow">
+          </div>
+          <div class="info-panel-subheader">
+            <h3 class="dropdown-label">Nation</h3>
+          </div>
+        </div>
+        <div id="state-dropdown-bar" class="dropdown-bar">
+          <div id="dropdown-indicator">
+            <img src="svg\side-arrow.svg" alt="closed dropdown arrow">
+          </div>
+          <div class="info-panel-subheader">
+            <h3>State</h3>
+          </div>
+        </div>
+        <div id="county-dropdown-bar" class="dropdown-bar">
+          <div id="dropdown-indicator">
+            <img src="svg\side-arrow.svg" alt="closed dropdown arrow">
+          </div>
+          <div class="info-panel-subheader">
+            <h3>County</h3>
+          </div>
+        </div>
+        <div id="municipality-dropdown-bar" class="dropdown-bar">
+          <div id="dropdown-indicator">
+            <img src="svg\side-arrow.svg" alt="closed dropdown arrow">
+          </div>
+          <div class="info-panel-subheader">
+            <h3>Municipality</h3>
+          </div>
+        </div>
+      </div>
+      <div class="lower-area">
+        <div class="search-bar-container">
+          <div class="additional-information">
+            Click a state on the map to see officials.
+          </div>
+          <div class="search-bar" id="search-bar">
+            Search
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--<script src="data.js"></script> -->
+  <!-- Allows the user to zoom into the svg-->
+  <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
