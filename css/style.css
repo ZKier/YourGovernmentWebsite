@@ -39,13 +39,12 @@ body {
 .info-panel {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    
     background-color: #9b9b9b;
 
-    flex: 1;
+    
+    max-height: 100vh;
 }
-
-
 
 .info-panel h3, p {
     margin: 0;
@@ -67,8 +66,11 @@ body {
 }
 
 .info-panel-top {
-    flex: 1;
-    max-height: 100vh;
+    /*these three properties allow for the flexbox to fill the remaining space without pushing the siblings out of the parent container*/
+    flex-grow: 1;   /* Forces this element to stretch and fill all leftover space */
+    flex-shrink: 1; /* Allows it to shrink if the screen gets too small */
+    min-height: 0;  /* Crucial: prevents content from stretching the container */
+  
     overflow-y: auto;
 }
 
@@ -130,8 +132,20 @@ body {
 
 .lower-area {
     display: flex;
-     /* flex: 1; fills container */
+    
     height: fit-content;
+    flex-shrink: 0;
+}
+
+.info-panel-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;   /* Forces this element to stretch and fill all leftover space */
+    flex-shrink: 1; /* Allows it to shrink if the screen gets too small */
+    min-height: 0;  /* Crucial: prevents content from stretching the container */
+  
+    overflow-y: auto;
+
 }
 
 .search-bar-container {
@@ -169,15 +183,15 @@ body {
     padding: 7px 20px 7px 20px;
 }
 
-/*
-.info-panel {
+
+.info-panel-container {
     border: 3px solid red;
 }
 
 .search-bar-container {
     border: 3px solid blue;
 }
-    */
+    
 
 .svg-pan-zoom-control-background {
     /*background-color: #4B4B4B !important;*/
