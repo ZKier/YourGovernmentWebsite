@@ -1,0 +1,19 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Test Box" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-85, 30],
+          [-80, 30],
+          [-80, 35],
+          [-85, 35],
+          [-85, 30]
+        ]]
+      }
+    }
+  ]
+}

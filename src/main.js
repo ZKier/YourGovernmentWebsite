@@ -3,6 +3,12 @@ import './style.css'
 // The URL on your server where CesiumJS's static files are hosted.
 //window.CESIUM_BASE_URL = '/';
 
+import {
+  Viewer,
+  GeoJsonDataSource,
+  Color
+} from 'cesium';
+
 import * as Cesium from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 
@@ -14,12 +20,75 @@ import 'cesium/Build/Cesium/Widgets/widgets.css';
 
 const viewer = new Cesium.Viewer('map-container', {
   terrain: Cesium.Terrain.fromWorldTerrain(),
+  //useBrowserRecommendedResolution: false,
 });  
+
+//viewer.resolutionScale = window.devicePixelRatio;
+//viewer.scene.fxaa = false;
+
+
+// const boundary = await Cesium.GeoJsonDataSource.load(
+//     '/data/test-boundary.geojson',
+//     {
+//         stroke: Cesium.Color.RED,
+//         fill: Cesium.Color.RED.withAlpha(0.4),
+//         strokeWidth: 5,
+//         clampToGround: false
+//     }
+// );
+
+//viewer.dataSources.add(boundary);
+//await viewer.zoomTo(boundary);
 
 // Add Cesium OSM Buildings, a global 3D buildings layer.
 //const buildingTileset = await createOsmBuildingsAsync();
 //viewer.scene.primitives.add(buildingTileset);
 
+const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+handler.setInputAction((click) => {
+  const cartesian = viewer.camera.pickEllipsoid(
+    click.position,
+    viewer.scene.globe.ellipsoid
+  );
+
+  if (cartesian) {
+    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+
+    const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+    const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+
+    console.log("Clicked location:");
+    console.log("Latitude:", latitude);
+    console.log("Longitude:", longitude);
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+// Show coordinates at the top left corner
+const coordinates = document.getElementById("coordinates");
+
+handler.setInputAction((movement) => {
+
+    const cartesian = viewer.camera.pickEllipsoid(
+        movement.endPosition,
+        viewer.scene.globe.ellipsoid
+    );
+
+    if (!cartesian) {
+        coordinates.innerHTML = "Outside globe";
+        return;
+    }
+
+    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+
+    const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+    const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+
+    coordinates.innerHTML =
+        `Lat: ${latitude.toFixed(6)}<br>` +
+        `Lon: ${longitude.toFixed(6)}`;
+
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 // Pull json data
 // fetch("my-government-map\public\data\counties.json")
 //   .then(response => response.json())
