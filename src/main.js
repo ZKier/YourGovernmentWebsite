@@ -1,115 +1,134 @@
-let countyData = {}; // initalize dataObject
-API_BASE = "http://127.0.0.1:5000";
+import './style.css'
+
+// The URL on your server where CesiumJS's static files are hosted.
+//window.CESIUM_BASE_URL = '/';
+
+import * as Cesium from 'cesium';
+import 'cesium/Build/Cesium/Widgets/widgets.css';
+
+
+//let countyData = {}; // initalize dataObject
+//API_BASE = "http://127.0.0.1:5000"; // probably dont want to put this into GitHub
+
+//Ion.defaultAccessToken = 'your_access_token';
+
+const viewer = new Cesium.Viewer('map-container', {
+  terrain: Cesium.Terrain.fromWorldTerrain(),
+});  
+
+// Add Cesium OSM Buildings, a global 3D buildings layer.
+//const buildingTileset = await createOsmBuildingsAsync();
+//viewer.scene.primitives.add(buildingTileset);
 
 // Pull json data
-fetch("data/counties.json")
-  .then(response => response.json())
-  .then(data => {
-    countyData = data;
-  });
+// fetch("my-government-map\public\data\counties.json")
+//   .then(response => response.json())
+//   .then(data => {
+//     countyData = data;
+//   });
 
 // Pulls the svg file
-fetch("svg/Usa_counties_large.svg")
-    // when the file arrives convert it to text
-    .then(response => response.text())
-    // put the svg that you just pulled into the map-container element from document
-    .then(svg => {
-        document.getElementById("map-container").innerHTML = svg;
+// fetch("svg/Usa_counties_large.svg")
+//     // when the file arrives convert it to text
+//     .then(response => response.text())
+//     // put the svg that you just pulled into the map-container element from document
+//     .then(svg => {
+//         document.getElementById("map-container").innerHTML = svg;
         
-        // check to see if the document was properly accessed
-        console.log(document.querySelector("#map-container svg"));
+//         // check to see if the document was properly accessed
+//         //console.log(document.querySelector("#map-container svg"));
 
-        // Organize zoom features from imported script in document.
-        svgPanZoom('#map-container svg', {
-            zoomEnabled: true,
-            controlIconsEnabled: true,
-            fit: true,
-            center: true,
+//         // Organize zoom features from imported script in document.
+//         // svgPanZoom('#map-container svg', {
+//         //     zoomEnabled: true,
+//         //     controlIconsEnabled: true,
+//         //     fit: true,
+//         //     center: true,
 
-            minZoom: 1, // 1 is the default size.
-            maxZoom: 20 // 20 is 20x the size.
-        });
+//         //     minZoom: 1, // 1 is the default size.
+//         //     maxZoom: 20 // 20 is 20x the size.
+//         // });
 
-        // Prevent zooming out past the starting fitted view
-        //const startingZoom = panZoomMap.getZoom();
-        //panZoomMap.setMinZoom(startingZoom);
+//         // Prevent zooming out past the starting fitted view
+//         //const startingZoom = panZoomMap.getZoom();
+//         //panZoomMap.setMinZoom(startingZoom);
 
-        // collect all of the states
-        const states = document.querySelectorAll("g[id]");
-        // collect all of the counties using ids that begin with 'c'
-        const counties = document.querySelectorAll('path[id^="c"]');
+//         // collect all of the states
+//         const states = document.querySelectorAll("g[id]");
+//         // collect all of the counties using ids that begin with 'c'
+//         const counties = document.querySelectorAll('path[id^="c"]');
 
-        counties.forEach(county => {
-            county.addEventListener("mouseenter", () => {
-                // go up the parents and find the closest <g>
-                const state = county.closest("g[id]");
-                // debugging
-                console.log("County:", county.id);
-                console.log("State:", state?.id);
-                state.querySelectorAll('path[id^="c"]').forEach(c => {
-                    c.classList.add("state-hover");
-                });
-            });
+//         counties.forEach(county => {
+//             county.addEventListener("mouseenter", () => {
+//                 // go up the parents and find the closest <g>
+//                 const state = county.closest("g[id]");
+//                 // debugging
+//                 console.log("County:", county.id);
+//                 console.log("State:", state?.id);
+//                 state.querySelectorAll('path[id^="c"]').forEach(c => {
+//                     c.classList.add("state-hover");
+//                 });
+//             });
 
-            county.addEventListener("mouseleave", () => {
-                const state = county.closest("g[id]");
+//             county.addEventListener("mouseleave", () => {
+//                 const state = county.closest("g[id]");
 
-                state.querySelectorAll('path[id^="c"]').forEach(c => {
-                    c.classList.remove("state-hover");
-                });
-            });
-        });
+//                 state.querySelectorAll('path[id^="c"]').forEach(c => {
+//                     c.classList.remove("state-hover");
+//                 });
+//             });
+//         });
 
-        // do what you want to each state
-        counties.forEach(county => {
-            county.addEventListener("click", () => {
-                const data = countyData[county.id]; // this is supposed to pull from database
-                const state = county.closest("g[id]");
-                const stateID = state.id.replace("_", " ");
+//         // do what you want to each state
+//         counties.forEach(county => {
+//             county.addEventListener("click", () => {
+//                 const data = countyData[county.id]; // this is supposed to pull from database
+//                 const state = county.closest("g[id]");
+//                 const stateID = state.id.replace("_", " ");
                 
-                const countyID = document.getElementById(county.id);
-                const title = countyID.querySelector("title").textContent;
-                const countyName = title.split(",")[0];
+//                 const countyID = document.getElementById(county.id);
+//                 const title = countyID.querySelector("title").textContent;
+//                 const countyName = title.split(",")[0];
 
-                // updating the sidebar
-                if (!data) {
-                    // update nation dropdown
-                    updateDropdownHeader("nation", "Nation: " + "United States of America");
-                    // update state dropdown
-                    updateDropdownHeader("state", stateID);
-                    // update county dropdown
-                    updateDropdownHeader("county", `${countyName} County`);
-                    // update municipality dropdown
-                    updateDropdownHeader("municipality", "Municipality: N/A");
+//                 // updating the sidebar
+//                 if (!data) {
+//                     // update nation dropdown
+//                     updateDropdownHeader("nation", "Nation: " + "United States of America");
+//                     // update state dropdown
+//                     updateDropdownHeader("state", stateID);
+//                     // update county dropdown
+//                     updateDropdownHeader("county", `${countyName} County`);
+//                     // update municipality dropdown
+//                     updateDropdownHeader("municipality", "Municipality: N/A");
 
-                    // Populates the dropdown
-                    createDropdownContent(data);
+//                     // Populates the dropdown
+//                     createDropdownContent(data);
 
-                    //createProfiles("nation"); // TESTING
-                    return;
-                // Updated dropdown headers when the data is available
-                } else {
-                    // update nation dropdown
-                    updateDropdownHeader("nation", "Nation: " + "United States of America");
-                    // update state dropdown
-                    updateDropdownHeader("state", "State: " + data.state);
-                    // update county dropdown
-                    updateDropdownHeader("county", "County: " + data.county);
-                    // update municipality dropdown
-                    updateDropdownHeader("municipality", "Municipality: N/A");
+//                     //createProfiles("nation"); // TESTING
+//                     return;
+//                 // Updated dropdown headers when the data is available
+//                 } else {
+//                     // update nation dropdown
+//                     updateDropdownHeader("nation", "Nation: " + "United States of America");
+//                     // update state dropdown
+//                     updateDropdownHeader("state", "State: " + data.state);
+//                     // update county dropdown
+//                     updateDropdownHeader("county", "County: " + data.county);
+//                     // update municipality dropdown
+//                     updateDropdownHeader("municipality", "Municipality: N/A");
 
-                    // Populates the dropdown
-                    createDropdownContent(data);
+//                     // Populates the dropdown
+//                     createDropdownContent(data);
 
-                    //createProfiles("nation"); // TESTING
-                    return;
-                    //<h2>${data.county}, ${data.state}</h2>
-                    //<p><strong>Governor:</strong> ${data.governor}</p>
-                    //<p><strong>Senators:</strong> ${data.senators.join(", ")}</p>
-                }
-            });
-        });      
-    });
+//                     //createProfiles("nation"); // TESTING
+//                     return;
+//                     //<h2>${data.county}, ${data.state}</h2>
+//                     //<p><strong>Governor:</strong> ${data.governor}</p>
+//                     //<p><strong>Senators:</strong> ${data.senators.join(", ")}</p>
+//                 }
+//             });
+//         });      
+//     });
 
 function updateDropdownHeader(layer, content) {
     document.querySelector(`#${layer}-dropdown-bar`).innerHTML = `

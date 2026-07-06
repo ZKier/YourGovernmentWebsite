@@ -1,0 +1,244 @@
+body {
+    background-color: #4B4B4B;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    overflow: hidden; /* Prevents scrolling */
+}
+
+.layout {
+    display: flex;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+html,
+body,
+#app,
+#map-container { 
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    
+}
+
+#map-container svg {
+    display: block;
+    /*width: 100%;*/
+    height: 100vh;
+    margin: 0;
+
+}
+
+#map-container svg path[id^="c"]:hover {
+    fill: limegreen;
+}
+
+.state-hover {
+    fill: green;
+}
+
+.info-panel {
+    display: flex;
+    flex-direction: column;
+    
+    background-color: #9b9b9b;
+
+    
+    max-height: 100vh;
+}
+
+.info-panel h3, p {
+    margin: 0;
+}
+
+.info-panel-header {
+    
+    display: flex;
+    flex-direction: row;
+    
+    align-items: center;
+    padding: 0px 10px; /* top/bottom right/left */
+    gap: 10px;
+
+    width: 100%;
+    height: fit-content;
+
+    
+}
+
+.info-panel-top {
+    /*these three properties allow for the flexbox to fill the remaining space without pushing the siblings out of the parent container*/
+    flex-grow: 1;   /* Forces this element to stretch and fill all leftover space */
+    flex-shrink: 1; /* Allows it to shrink if the screen gets too small */
+    min-height: 0;  /* Crucial: prevents content from stretching the container */
+  
+    overflow-y: auto;
+}
+
+#header {
+    font-family: 'Jacques Francois';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 21px;
+    
+    width: 100%;
+    
+    text-align: left;
+
+
+    color: #FFFFFF;
+
+    
+
+}
+
+.sidebar-icon {
+    /* display: inline-block; */
+    display: flex;
+    justify-content: center;
+    width: fit-content;
+    padding: 0px 20px;
+
+    
+
+}
+
+.sidebar-icon :hover{
+    display: inline-block;
+    background-color: #ffffff;
+    border-radius: 10px;
+}
+
+.dropdown-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start; /* left justify */
+    align-items: center;
+    padding: 0px 0px 0px 10px;
+}
+
+.dropdown-indicator {
+    width: fit-content;
+}
+
+.info-panel-subheader {
+    padding: 10px 10px;
+    flex: 1; /* fills container */
+}
+
+.dropdown-label h3 {
+    padding-left: 5px;
+}
+
+.lower-area {
+    display: flex;
+    
+    height: fit-content;
+    flex-shrink: 0;
+}
+
+.info-panel-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;   /* Forces this element to stretch and fill all leftover space */
+    flex-shrink: 1; /* Allows it to shrink if the screen gets too small */
+    min-height: 0;  /* Crucial: prevents content from stretching the container */
+  
+    overflow-y: auto;
+
+}
+
+.search-bar-container {
+
+    bottom: 0;
+    right: 0;
+
+    padding: 4px 20px 7px 20px;
+    background-color: #9b9b9b;
+    flex-shrink: 0;
+    border-top: 1px solid #666;
+
+    margin-top: auto;
+}
+
+.search-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 289px;
+    height: 31px;
+    padding: 7px 20px 7px 20px;
+
+    background: #FFFFFF;
+    color: black;
+    border-radius: 20px;
+}
+
+.additional-information {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 7px 20px 7px 20px;
+}
+
+
+.info-panel-container {
+    border: 3px solid red;
+}
+
+.search-bar-container {
+    border: 3px solid blue;
+}
+    
+
+.svg-pan-zoom-control-background {
+    /*background-color: #4B4B4B !important;*/
+    fill: #4B4B4B !important;
+}
+
+.photo-container {
+    width: fit-content;
+    padding: 5px 10px
+}
+
+.profile-container {
+    display: flex;
+    flex-direction: row;
+    border-top: 1px solid #666;
+    border-bottom: 1px solid #666;
+}
+
+.quick-info-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: center;
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.frame-overlay {
+  pointer-events: none; /* Allows users to right-click/save the photo underneath */
+}
+
+.hidden {
+    display: none;
+}
