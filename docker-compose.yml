@@ -5,6 +5,7 @@ services:
       - "5000:5000"
     volumes:
       - ./python:/app
+      - ./data:/data:ro
 
   frontend:
     build: .

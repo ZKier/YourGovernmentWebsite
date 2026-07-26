@@ -27,18 +27,17 @@ const viewer = new Cesium.Viewer('map-container', {
 //viewer.scene.fxaa = false;
 
 
-// const boundary = await Cesium.GeoJsonDataSource.load(
-//     '/data/test-boundary.geojson',
-//     {
-//         stroke: Cesium.Color.RED,
-//         fill: Cesium.Color.RED.withAlpha(0.4),
-//         strokeWidth: 5,
-//         clampToGround: false
-//     }
-// );
-
-//viewer.dataSources.add(boundary);
-//await viewer.zoomTo(boundary);
+const boundary = await Cesium.GeoJsonDataSource.load(
+    '/data/us_nation.geojson',
+    {
+        stroke: Cesium.Color.RED,
+        fill: Cesium.Color.RED.withAlpha(0.4),
+        strokeWidth: 5,
+        clampToGround: false
+    }
+);
+viewer.dataSources.add(boundary);
+await viewer.zoomTo(boundary);
 
 // Add Cesium OSM Buildings, a global 3D buildings layer.
 //const buildingTileset = await createOsmBuildingsAsync();
@@ -89,6 +88,9 @@ handler.setInputAction((movement) => {
         `Lon: ${longitude.toFixed(6)}`;
 
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+
+
 // Pull json data
 // fetch("my-government-map\public\data\counties.json")
 //   .then(response => response.json())
