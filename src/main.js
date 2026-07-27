@@ -36,8 +36,22 @@ const boundary = await Cesium.GeoJsonDataSource.load(
         clampToGround: false
     }
 );
+
+// Add the US GeoJSON boundary to the globe
 viewer.dataSources.add(boundary);
-await viewer.zoomTo(boundary);
+
+// Have the camera fly to the US Center
+await viewer.camera.flyTo({
+  destination: usCenter,
+
+  orientation: {
+    heading: Cesium.Math.toRadians(0), // compass direction '0 = Facing North' every +90 is a clockwise turn so E S W
+    pitch: Cesium.Math.toRadians(-90), // Angle that you look at the planet, -90 is looking stright down
+    roll: Cesium.Math.toRadians(0), // Tilt, imagine tilting your head
+  },
+  
+  duration: 2.0,
+});
 
 // Add Cesium OSM Buildings, a global 3D buildings layer.
 //const buildingTileset = await createOsmBuildingsAsync();
