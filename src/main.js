@@ -25,10 +25,7 @@ const viewer = new Cesium.Viewer('map-container', {
 
 //viewer.resolutionScale = window.devicePixelRatio;
 //viewer.scene.fxaa = false;
-// Checking to see how long it takes for the total boundary to load
-console.time("total boundary load");
 
-console.time("fetch");
 const boundary = await Cesium.GeoJsonDataSource.load(
     '/data/us_nation.geojson',
     {
@@ -39,11 +36,11 @@ const boundary = await Cesium.GeoJsonDataSource.load(
     }
 );
 
-console.timeEnd("fetch");
+
 
 // Add the US GeoJSON boundary to the globe
 viewer.dataSources.add(boundary);
-console.timeEnd("total boundary load");
+
 
 // const entities = boundary.entities.values;
 
@@ -52,20 +49,17 @@ console.timeEnd("total boundary load");
 //     false
 // );
 
-await viewer.flyTo(boundary);
+//await viewer.flyTo(boundary);
 
-// Have the camera fly to the US Center
-// await viewer.camera.flyTo({
-//   destination: usCenter,
-
-//   orientation: {
-//     heading: Cesium.Math.toRadians(0), // compass direction '0 = Facing North' every +90 is a clockwise turn so E S W
-//     pitch: Cesium.Math.toRadians(-90), // Angle that you look at the planet, -90 is looking stright down
-//     roll: Cesium.Math.toRadians(0), // Tilt, imagine tilting your head
-//   },
-  
-//   duration: 2.0,
-// });
+//Have the camera fly to the US Center
+await viewer.flyTo(boundary, {
+  duration: 2.0,
+  offset: new Cesium.HeadingPitchRange(
+    Cesium.Math.toRadians(0), // compass direction'0 = Facing North' every +90 is a clockwise turn so E S W
+    Cesium.Math.toRadians(-90), // Angle that you look at the planet, -90 is looking stright down
+    0 // zoom
+  ),
+});
 
 // Add Cesium OSM Buildings, a global 3D buildings layer.
 //const buildingTileset = await createOsmBuildingsAsync();
