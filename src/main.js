@@ -91,18 +91,20 @@ const clickHandler = new Cesium.ScreenSpaceEventHandler(
 
 // Attempting to intercept the click that shows geoid and state name
 clickHandler.setInputAction((click) => {
-    console.log("USER CLICKED SOMETHING!")
+    console.log("USER CLICKED SOMETHING!");
   const pickedObject = viewer.scene.pick(click.position);
+  console.log(pickedObject);
+  console.log(pickedObject.name);
 
   if (!Cesium.defined(pickedObject)) {
     return;
   }
 
-  const clickedEntity = pickedObject.geoid;
+  const clickedEntity = pickedObject.id;
+  console.log(clickedEntity.name);
 
-  if (clickedEntity?.id === "US") {
-    updateDropdownHeader("nation", "Nation: " + "United States of America");
-  }
+  updateDropdownHeader("nation", "Nation: " + clickedEntity.name);
+  
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 // Show coordinates at the top left corner
