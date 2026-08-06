@@ -85,6 +85,26 @@ handler.setInputAction((click) => {
   }
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
+const clickHandler = new Cesium.ScreenSpaceEventHandler(
+  viewer.scene.canvas
+);
+
+// Attempting to intercept the click that shows geoid and state name
+clickHandler.setInputAction((click) => {
+    console.log("USER CLICKED SOMETHING!")
+  const pickedObject = viewer.scene.pick(click.position);
+
+  if (!Cesium.defined(pickedObject)) {
+    return;
+  }
+
+  const clickedEntity = pickedObject.geoid;
+
+  if (clickedEntity?.id === "US") {
+    updateDropdownHeader("nation", "Nation: " + "United States of America");
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
 // Show coordinates at the top left corner
 const coordinates = document.getElementById("coordinates");
 
@@ -233,6 +253,7 @@ function updateDropdownHeader(layer, content) {
         </div>
     `;
     addHideUnhideDropdownBar(layer);
+    console.log("did this function run?")
 }    
 // Populates the dropdown
 function createDropdownContent(data) {

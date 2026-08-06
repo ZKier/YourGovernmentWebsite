@@ -39,6 +39,9 @@ body,
 
     
     max-height: 100vh;
+    position: sticky;
+    z-index: 1000;
+    margin-left: auto;
 }
 
 .info-panel h3, p {
@@ -246,4 +249,11 @@ body,
     border-radius: 6px;
 
     font-family: monospace;
+}
+
+.cesium-viewer-toolbar,
+.cesium-viewer-animationContainer,
+.cesium-viewer-timelineContainer,
+.cesium-viewer-bottom {
+    transition: right 0.25s ease;
 }
