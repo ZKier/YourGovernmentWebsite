@@ -40,6 +40,15 @@ body,
     
     max-height: 100vh;
     position: sticky;
+    z-index: 2;
+    margin-left: auto;
+}
+
+#info-panel-wrapper {
+    display: flex;
+    
+    background-color: #9b9b9b;
+    position: sticky;
     z-index: 1000;
     margin-left: auto;
 }
@@ -256,4 +265,43 @@ body,
 .cesium-viewer-timelineContainer,
 .cesium-viewer-bottom {
     transition: right 0.25s ease;
+}
+
+#sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+#sidebar.open {
+    transform: translateX(0);
+}
+
+#info-panel-toggle-button {
+    padding-top: 5%;
+    padding-bottom: 5%;
+    padding-right: 5px;
+    display: flex;
+    height: fit-content;
+    position: absolute;
+    align-items: center;
+    background-color: #4B4B4B;
+    fill: #4B4B4B;
+    margin: auto 0;
+    margin-left: auto;
+    z-index: -1;
+    width: 25%;
+    left: -6%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 10px;
+}
+
+#info-panel-wrapper {
+    transform: translateX(0);
+    transition: transform 300ms ease;
+}
+
+#info-panel-wrapper.closed {
+    transform: translateX(calc(100%));
+    /*transform: translateX(200px);*/
 }

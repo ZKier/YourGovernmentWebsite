@@ -3,29 +3,21 @@ import './style.css'
 // The URL on your server where CesiumJS's static files are hosted.
 //window.CESIUM_BASE_URL = '/';
 
-import {
-  Viewer,
-  GeoJsonDataSource,
-  Color
-} from 'cesium';
-
+import { Viewer, GeoJsonDataSource, Color } from 'cesium';
 import * as Cesium from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
-
+import * as sidebar from "./infopanel.js";
 
 //let countyData = {}; // initalize dataObject
 //API_BASE = "http://127.0.0.1:5000"; // probably dont want to put this into GitHub
-
 //Ion.defaultAccessToken = 'your_access_token';
 
+// Create a globe
 const viewer = new Cesium.Viewer('map-container', {
   terrain: Cesium.Terrain.fromWorldTerrain(),
-  //useBrowserRecommendedResolution: false,
 });  
 
-//viewer.resolutionScale = window.devicePixelRatio;
-//viewer.scene.fxaa = false;
-
+// Pull the US GeoJSON data to create a boundary
 const boundary = await Cesium.GeoJsonDataSource.load(
     '/data/us_nation.geojson',
     {
@@ -36,20 +28,8 @@ const boundary = await Cesium.GeoJsonDataSource.load(
     }
 );
 
-
-
 // Add the US GeoJSON boundary to the globe
 viewer.dataSources.add(boundary);
-
-
-// const entities = boundary.entities.values;
-
-// const state = await viewer.dataSourceDisplay.getBoundingSphere(
-//     entities[0],
-//     false
-// );
-
-//await viewer.flyTo(boundary);
 
 //Have the camera fly to the US Center
 await viewer.flyTo(boundary, {
@@ -61,12 +41,8 @@ await viewer.flyTo(boundary, {
   ),
 });
 
-// Add Cesium OSM Buildings, a global 3D buildings layer.
-//const buildingTileset = await createOsmBuildingsAsync();
-//viewer.scene.primitives.add(buildingTileset);
-
+// Display [Longitude / Latitude] values in the console on click.
 const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-
 handler.setInputAction((click) => {
   const cartesian = viewer.camera.pickEllipsoid(
     click.position,
@@ -85,11 +61,10 @@ handler.setInputAction((click) => {
   }
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
+// Attempting to intercept the click that shows geoid and state name (In Progress...)
 const clickHandler = new Cesium.ScreenSpaceEventHandler(
   viewer.scene.canvas
 );
-
-// Attempting to intercept the click that shows geoid and state name
 clickHandler.setInputAction((click) => {
     console.log("USER CLICKED SOMETHING!");
   const pickedObject = viewer.scene.pick(click.position);
@@ -107,21 +82,17 @@ clickHandler.setInputAction((click) => {
   
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-// Show coordinates at the top left corner
+// Display [Longitude / Latitude] values in the top left corner.
 const coordinates = document.getElementById("coordinates");
-
 handler.setInputAction((movement) => {
-
     const cartesian = viewer.camera.pickEllipsoid(
         movement.endPosition,
         viewer.scene.globe.ellipsoid
     );
-
     if (!cartesian) {
         coordinates.innerHTML = "Outside globe";
         return;
     }
-
     const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
 
     const latitude = Cesium.Math.toDegrees(cartographic.latitude);
@@ -133,7 +104,12 @@ handler.setInputAction((movement) => {
 
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-
+// Toggle the sidebar (IN PROGRESS...)
+const sidebarIcon = document.getElementById("info-panel-toggle-button");
+sidebarIcon.addEventListener("click", () => {
+    const wrapper = document.getElementById("info-panel-wrapper");
+    wrapper.classList.toggle("closed");
+});
 
 // Pull json data
 // fetch("my-government-map\public\data\counties.json")
