@@ -31,6 +31,36 @@ const boundary = await Cesium.GeoJsonDataSource.load(
 // Add the US GeoJSON boundary to the globe
 viewer.dataSources.add(boundary);
 
+// Add a label to the US
+const label = viewer.entities.add({
+    id: "us-label",
+    position: Cesium.Cartesian3.fromDegrees(-98.5, 39.5),
+
+    label: {
+        text: "United States",
+        font: "24px sans-serif",
+        fillColor: Cesium.Color.WHITE,
+        outlineColor: Cesium.Color.BLACK,
+        outlineWidth: 2,
+
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+
+        verticalOrigin: Cesium.VerticalOrigin.Center,
+        horizontalOrigin:Cesium.HorizontalOrigin.Center,
+
+        distanceDisplayCondition:
+            new Cesium.DistanceDisplayCondition(
+                0.0,
+                30000000.0
+            )
+    }
+});
+
+// Make the label clickable
+label.onClick = () => {
+    console.log("United States clicked!");
+};
+
 //Have the camera fly to the US Center
 await viewer.flyTo(boundary, {
   duration: 2.0,
@@ -62,6 +92,7 @@ handler.setInputAction((click) => {
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 // Attempting to intercept the click that shows geoid and state name (In Progress...)
+// So far this adds the data to the info panel
 const clickHandler = new Cesium.ScreenSpaceEventHandler(
   viewer.scene.canvas
 );
@@ -104,7 +135,7 @@ handler.setInputAction((movement) => {
 
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-// Toggle the sidebar (IN PROGRESS...)
+// Toggle the sidebar
 const sidebarIcon = document.getElementById("info-panel-toggle-button");
 sidebarIcon.addEventListener("click", () => {
     const wrapper = document.getElementById("info-panel-wrapper");
