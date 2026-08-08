@@ -126,6 +126,7 @@ body,
 
 .dropdown-indicator {
     width: fit-content;
+    cursor: pointer;
 }
 
 .info-panel-subheader {
@@ -294,6 +295,7 @@ body,
     top: 50%;
     transform: translateY(-50%);
     border-radius: 10px;
+    cursor: pointer;
 }
 
 #info-panel-wrapper {
