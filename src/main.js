@@ -14,7 +14,9 @@ import * as sidebar from "./infopanel.js";
 
 // Create a globe
 const viewer = new Cesium.Viewer('map-container', {
-  terrain: Cesium.Terrain.fromWorldTerrain(),
+    infoBox: false, // removes the infobox to the side of the page.
+    selectionIndicator: false, // removes the green selection indicator from cesium globe.
+    terrain: Cesium.Terrain.fromWorldTerrain(),
 });  
 
 // Pull the US GeoJSON data to create a boundary
