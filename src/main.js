@@ -12,7 +12,7 @@ import * as sidebar from "./infopanel.js";
 //API_BASE = "http://127.0.0.1:5000"; // probably dont want to put this into GitHub
 //Ion.defaultAccessToken = 'your_access_token';
 
-// Create a globe
+// Create a globe and remove the infobox and selection indicator
 const viewer = new Cesium.Viewer('map-container', {
     infoBox: false, // removes the infobox to the side of the page.
     selectionIndicator: false, // removes the green selection indicator from cesium globe.
@@ -32,14 +32,16 @@ const boundary = await Cesium.GeoJsonDataSource.load(
 
 // Add the US GeoJSON boundary to the globe
 viewer.dataSources.add(boundary);
+const entity = boundary.entities.values[0];
+const name = entity.name;
 
-// Add a label to the US
+// Add a label to the created boundary, at the moment the US because position is hardcoded
 const label = viewer.entities.add({
     id: "us-label",
     position: Cesium.Cartesian3.fromDegrees(-98.5, 39.5),
 
     label: {
-        text: "United States",
+        text: name,
         font: "24px sans-serif",
         fillColor: Cesium.Color.WHITE,
         outlineColor: Cesium.Color.BLACK,
@@ -100,18 +102,18 @@ const clickHandler = new Cesium.ScreenSpaceEventHandler(
 );
 clickHandler.setInputAction((click) => {
     console.log("USER CLICKED SOMETHING!");
-  const pickedObject = viewer.scene.pick(click.position);
-  console.log(pickedObject);
-  console.log(pickedObject.name);
+    const pickedObject = viewer.scene.pick(click.position);
+    console.log(pickedObject);
+    console.log(pickedObject.name);
 
-  if (!Cesium.defined(pickedObject)) {
-    return;
-  }
+    if (!Cesium.defined(pickedObject)) {
+        return;
+    }
 
-  const clickedEntity = pickedObject.id;
-  console.log(clickedEntity.name);
+    const clickedEntity = pickedObject.id;
+    console.log(clickedEntity.name);
 
-  updateDropdownHeader("nation", "Nation: " + clickedEntity.name);
+    updateDropdownHeader("nation", "Nation: " + clickedEntity.name);
   
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
