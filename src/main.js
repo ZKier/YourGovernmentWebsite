@@ -49,6 +49,11 @@ const label = viewer.entities.add({
 
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
 
+        // Creates a rectangular area behind the text
+        showBackground: true,
+        backgroundColor: Cesium.Color.BLACK.withAlpha(0.01),
+        backgroundPadding: new Cesium.Cartesian2(10, 6),
+
         verticalOrigin: Cesium.VerticalOrigin.Center,
         horizontalOrigin:Cesium.HorizontalOrigin.Center,
 
@@ -59,6 +64,38 @@ const label = viewer.entities.add({
             )
     }
 });
+
+// Adds styling during hover
+label.hoverStyle = {
+    fillColor: Cesium.Color.YELLOW,
+    outlineColor: Cesium.Color.RED
+};
+
+// creates a way for the .hoverStyle property to be used
+const labelHoverHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+let hoveredEntity = null;
+
+labelHoverHandler.setInputAction((movement) => {
+    const picked = viewer.scene.pick(movement.endPosition);
+    if (picked?.id?.label) {
+        // Store the entity that the user is hovering
+        hoveredEntity = picked.id;
+
+        // Apply hover appearance
+        hoveredEntity.label.fillColor = Cesium.Color.BLUE;
+        hoveredEntity.label.outlineColor = Cesium.Color.WHITE;
+    }
+
+    else if (hoveredEntity) {
+        // Restore previous entity
+        hoveredEntity.label.fillColor = Cesium.Color.WHITE;
+        hoveredEntity.label.outlineColor = Cesium.Color.BLACK;
+
+        // Nothing is hovered anymore
+        hoveredEntity = null;
+    }
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
 // Make the label clickable
 label.onClick = () => {
