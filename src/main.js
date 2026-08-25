@@ -37,7 +37,7 @@ const name = entity.name;
 
 // Add a label to the created boundary, at the moment the US because position is hardcoded
 const label = viewer.entities.add({
-    id: "us-label",
+    id: entity.id + "-label",
     position: Cesium.Cartesian3.fromDegrees(-98.5, 39.5),
 
     label: {
@@ -51,7 +51,8 @@ const label = viewer.entities.add({
 
         // Creates a rectangular area behind the text
         showBackground: true,
-        backgroundColor: Cesium.Color.BLACK.withAlpha(0.01),
+        //backgroundColor: Cesium.Color.BLACK.withAlpha(0.01),
+        backgroundColor: Cesium.Color.TRANSPARENT,
         backgroundPadding: new Cesium.Cartesian2(10, 6),
 
         verticalOrigin: Cesium.VerticalOrigin.Center,
@@ -64,6 +65,9 @@ const label = viewer.entities.add({
             )
     }
 });
+
+// Stash the boundary this label represents
+label.myBoundary = boundary;
 
 // Adds styling during hover
 label.hoverStyle = {
@@ -97,10 +101,22 @@ labelHoverHandler.setInputAction((movement) => {
     }
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-// Make the label clickable
+// Make the label clickable (This won't work I have to focus on the other handler)
 label.onClick = () => {
     console.log("United States clicked!");
+    //goTo(boundary); // I want it to go to the thing that the label represents...
 };
+
+async function goTo(boundary0) {
+    await viewer.flyTo(boundary0, {
+        duration: 2.0,
+        offset: new Cesium.HeadingPitchRange(
+            Cesium.Math.toRadians(0), // compass direction'0 = Facing North' every +90 is a clockwise turn so E S W
+            Cesium.Math.toRadians(-90), // Angle that you look at the planet, -90 is looking stright down
+            0 // zoom
+        ),
+    });
+}
 
 //Have the camera fly to the US Center
 await viewer.flyTo(boundary, {
@@ -132,16 +148,24 @@ handler.setInputAction((click) => {
   }
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-// Attempting to intercept the click that shows geoid and state name (In Progress...)
+
 // So far this adds the data to the info panel
-const clickHandler = new Cesium.ScreenSpaceEventHandler(
-  viewer.scene.canvas
-);
+const clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
 clickHandler.setInputAction((click) => {
     console.log("USER CLICKED SOMETHING!");
     const pickedObject = viewer.scene.pick(click.position);
     console.log(pickedObject);
     console.log(pickedObject.name);
+    console.log(pickedObject.id.id);
+
+    
+    // Check to see if the id of the selected object ends with 
+    // "-label" and postion the viewer
+    if(pickedObject.id.id.endsWith("-label")) {
+        console.log("this item is a label...")
+        goTo(pickedObject.id.myBoundary);
+    }
 
     if (!Cesium.defined(pickedObject)) {
         return;
@@ -149,10 +173,20 @@ clickHandler.setInputAction((click) => {
 
     const clickedEntity = pickedObject.id;
     console.log(clickedEntity.name);
+    let nation_name = clickedEntity.name;
 
-    updateDropdownHeader("nation", "Nation: " + clickedEntity.name);
+    // Check to see if the id of the selected object ends with 
+    // "-label" and postion the viewer
+    if(pickedObject.id.id.endsWith("-label")) {
+        console.log("this item is a label...")
+        goTo(pickedObject.id.myBoundary);
+        nation_name = clickedEntity.id;
+    }
+
+    updateDropdownHeader("nation", "Nation: " + nation_name);
   
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
 
 // Display [Longitude / Latitude] values in the top left corner.
 const coordinates = document.getElementById("coordinates");
