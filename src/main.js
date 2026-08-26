@@ -180,7 +180,7 @@ clickHandler.setInputAction((click) => {
     if(pickedObject.id.id.endsWith("-label")) {
         console.log("this item is a label...")
         goTo(pickedObject.id.myBoundary);
-        nation_name = clickedEntity.id;
+        nation_name = pickedObject.primitive._text;
     }
 
     updateDropdownHeader("nation", "Nation: " + nation_name);
