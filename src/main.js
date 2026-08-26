@@ -24,7 +24,7 @@ const boundary = await Cesium.GeoJsonDataSource.load(
     '/data/us_nation.geojson',
     {
         stroke: Cesium.Color.RED,
-        fill: Cesium.Color.RED.withAlpha(0.4),
+        fill: Cesium.Color.TRANSPARENT,
         strokeWidth: 5,
         clampToGround: false
     }
@@ -57,6 +57,8 @@ const label = viewer.entities.add({
 
         verticalOrigin: Cesium.VerticalOrigin.Center,
         horizontalOrigin:Cesium.HorizontalOrigin.Center,
+        disableDepthTestDistance: 15000000, // maybe i can make an if condition for if the location is visible on the screen
+        //eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
 
         distanceDisplayCondition:
             new Cesium.DistanceDisplayCondition(
