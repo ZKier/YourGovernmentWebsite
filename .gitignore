@@ -39,3 +39,6 @@ __pycache__/
 
 # Ignore the node_modules folder
 node_modules/
+
+# Ignore CSV
+congress_members.csv
