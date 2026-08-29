@@ -1,0 +1,21 @@
+services:
+  backend:
+    build: ./python
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./python:/app
+      - ./data:/data:ro
+      - ./government.db:/app/government.db
+
+  frontend:
+    build: .
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    command: npm run dev -- --host
+    ports:
+      - "5173:5173"
