@@ -8,7 +8,7 @@ import sqlite3
 app = Flask(__name__)
 CORS(app)
 
-DB_FILE = "government.db"
+DB_FILE = "/app/government.db"
 GPKG_PATH = Path("data/cb_2025_us_all_5m.gpkg")
 
 def query_db(query, params=()):
@@ -22,12 +22,12 @@ def query_db(query, params=()):
 
 @app.route("/nation_congress_members")
 def get_members():
-    state = request.args.get("state")
+    country = request.args.get("nation")
 
-    if state:
+    if country:
         members = query_db(
-            "SELECT * FROM congress_members WHERE state = ?",
-            (state,)
+            "SELECT * FROM congress_members WHERE country = ?",
+            (country,)
         )
     else:
         members = query_db("SELECT * FROM congress_members")
@@ -52,5 +52,9 @@ def get_nation():
         return jsonify({"error": str(exc)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
-    #app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True, 
+        use_reloader=False
+    )

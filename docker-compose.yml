@@ -6,6 +6,7 @@ services:
     volumes:
       - ./python:/app
       - ./data:/data:ro
+      - ./government.db:/app/government.db
 
   frontend:
     build: .

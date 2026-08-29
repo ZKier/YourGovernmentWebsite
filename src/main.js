@@ -9,9 +9,9 @@ import 'cesium/Build/Cesium/Widgets/widgets.css';
 import * as sidebar from "./infopanel.js";
 
 //let countyData = {}; // initalize dataObject
-//API_BASE = "http://127.0.0.1:5000"; // probably dont want to put this into GitHub
+const API_BASE = import.meta.env.VITE_FLASK_API_BASE; // Actual location located in .env file
 //Ion.defaultAccessToken = 'your_access_token';
-
+console.log("API_BASE:", API_BASE);
 // Create a globe and remove the infobox and selection indicator
 const viewer = new Cesium.Viewer('map-container', {
     infoBox: false, // removes the infobox to the side of the page.
@@ -184,8 +184,10 @@ clickHandler.setInputAction((click) => {
         goTo(pickedObject.id.myBoundary);
         nation_name = pickedObject.primitive._text;
     }
-
+    const layer = "nation"; // i think i just want this to see if its a nation, state, county, or city
+    const location = nation_name;
     updateDropdownHeader("nation", "Nation: " + nation_name);
+    createDropdownContent(layer, location); // This is to add profiles to the sidebar
   
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -339,13 +341,13 @@ function updateDropdownHeader(layer, content) {
         </div>
     `;
     addHideUnhideDropdownBar(layer);
-    console.log("did this function run?")
+    console.log("Function: updateDropdownHeader() RAN!")
 }    
 // Populates the dropdown
-function createDropdownContent(data) {
+function createDropdownContent(layer, location) {
     // Nation
-    createProfiles("nation");
-
+    createProfiles(layer, location);
+    console.log("Function: createDropdownContent() RAN!");
     // State
     //createProfile("state");
     // County
@@ -441,9 +443,9 @@ function intializeProfileText(layer, member) {
 
 
 // had to use async because this function uses an await
-async function createProfiles(layer) {
+async function createProfiles(layer, location) {
     // had to use await because this function takes time
-    const jsonData = await getLayerData(layer); // get the nation data in this case
+    const jsonData = await getLayerData(layer, location); // get the nation data in this case
     
     let member = jsonData[0];
 
@@ -461,9 +463,10 @@ async function createProfiles(layer) {
     }
 }
 
-async function getLayerData(layer) { 
+async function getLayerData(layer, location) { 
     const route = `/${layer}_congress_members`
-    const response = await fetch(`${API_BASE}${route}`);
+    const response = await fetch(`${API_BASE}${route}?nation=${location}`);
+    console.log(response);
     const jsonData = await response.json();
     return jsonData;
 }
