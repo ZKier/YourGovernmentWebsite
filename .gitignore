@@ -42,3 +42,6 @@ node_modules/
 
 # Ignore CSV
 congress_members.csv
+
+# Ignore GeoPackage
+*.gpkg
