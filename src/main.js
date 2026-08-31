@@ -19,63 +19,82 @@ const viewer = new Cesium.Viewer('map-container', {
     terrain: Cesium.Terrain.fromWorldTerrain(),
 });  
 
-// Pull the US GeoJSON data to create a boundary
-const boundary = await Cesium.GeoJsonDataSource.load(
+const geoJsonFiles = [
     '/data/us_nation.geojson',
+    '/data/us_state_data.geojson'
+];
+
+const boundaries = [];
+
+for (const file of geoJsonFiles) {
+    console.log(`'${file}' started!`);
+    
+    // Pull the GeoJSON data to create a boundary.
+    const boundary = await Cesium.GeoJsonDataSource.load(
+    file,
     {
         stroke: Cesium.Color.RED,
         fill: Cesium.Color.TRANSPARENT,
         strokeWidth: 5,
         clampToGround: false
     }
-);
+    );
+    console.log("GeoJSON data was successfully pulled!");
 
-// Add the US GeoJSON boundary to the globe
-viewer.dataSources.add(boundary);
-const entity = boundary.entities.values[0];
-const name = entity.name;
+    // Add the GeoJSON boundary to the globe
+    viewer.dataSources.add(boundary);
+    const entity = boundary.entities.values[0];
+    boundaries.push(boundary);
+    const name = entity.name;
+    console.log("GeoJSON boundary was successfully added to the globe!");
 
-// Add a label to the created boundary, at the moment the US because position is hardcoded
-const label = viewer.entities.add({
-    id: entity.id + "-label",
-    position: Cesium.Cartesian3.fromDegrees(-98.5, 39.5),
+    // Add a label to the created boundary
+    const label = viewer.entities.add({
+        id: entity.id + "-label",
+        position: Cesium.Cartesian3.fromDegrees(-98.5, 39.5), // THIS NEEDS TO BE UPDATED
 
-    label: {
-        text: name,
-        font: "24px sans-serif",
-        fillColor: Cesium.Color.WHITE,
-        outlineColor: Cesium.Color.BLACK,
-        outlineWidth: 2,
+        label: {
+            text: name,
+            font: "24px sans-serif",
+            fillColor: Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
 
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
 
-        // Creates a rectangular area behind the text
-        showBackground: true,
-        //backgroundColor: Cesium.Color.BLACK.withAlpha(0.01),
-        backgroundColor: Cesium.Color.TRANSPARENT,
-        backgroundPadding: new Cesium.Cartesian2(10, 6),
+            // Creates a rectangular area behind the text
+            showBackground: true,
+            //backgroundColor: Cesium.Color.BLACK.withAlpha(0.01),
+            backgroundColor: Cesium.Color.TRANSPARENT,
+            backgroundPadding: new Cesium.Cartesian2(10, 6),
 
-        verticalOrigin: Cesium.VerticalOrigin.Center,
-        horizontalOrigin:Cesium.HorizontalOrigin.Center,
-        disableDepthTestDistance: 15000000, // maybe i can make an if condition for if the location is visible on the screen
-        //eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+            verticalOrigin: Cesium.VerticalOrigin.Center,
+            horizontalOrigin:Cesium.HorizontalOrigin.Center,
+            disableDepthTestDistance: 15000000, // maybe i can make an if condition for if the location is visible on the screen
+            //eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
 
-        distanceDisplayCondition:
-            new Cesium.DistanceDisplayCondition(
-                0.0,
-                30000000.0
-            )
-    }
-});
+            distanceDisplayCondition:
+                new Cesium.DistanceDisplayCondition(
+                    0.0,
+                    30000000.0
+                )
+        }
+    });
+    label.myBoundary = boundary; // Stash the boundary this label represents
+    console.log("GeoJSON boundary label was successfully added to the globe!");
 
-// Stash the boundary this label represents
-label.myBoundary = boundary;
+    // Adds styling during hover
+    label.hoverStyle = {
+        fillColor: Cesium.Color.YELLOW,
+        outlineColor: Cesium.Color.RED
+    };
+    console.log("The inital styling for the .hoverStyle is added!");
+    console.log(`'${file}' finished!`);
+}
 
-// Adds styling during hover
-label.hoverStyle = {
-    fillColor: Cesium.Color.YELLOW,
-    outlineColor: Cesium.Color.RED
-};
+
+
+
 
 // creates a way for the .hoverStyle property to be used
 const labelHoverHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
@@ -102,13 +121,13 @@ labelHoverHandler.setInputAction((movement) => {
         hoveredEntity = null;
     }
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
+/*
 // Make the label clickable (This won't work I have to focus on the other handler)
 label.onClick = () => {
     console.log("United States clicked!");
     //goTo(boundary); // I want it to go to the thing that the label represents...
 };
-
+*/
 async function goTo(boundary0) {
     await viewer.flyTo(boundary0, {
         duration: 2.0,
@@ -119,7 +138,7 @@ async function goTo(boundary0) {
         ),
     });
 }
-
+/* COMMENTED OUT TO SEE RESULTS
 //Have the camera fly to the US Center
 await viewer.flyTo(boundary, {
   duration: 2.0,
@@ -129,6 +148,7 @@ await viewer.flyTo(boundary, {
     0 // zoom
   ),
 });
+*/
 
 // Display [Longitude / Latitude] values in the console on click.
 const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
