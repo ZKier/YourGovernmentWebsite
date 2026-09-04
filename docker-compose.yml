@@ -19,3 +19,27 @@ services:
     command: npm run dev -- --host
     ports:
       - "5173:5173"
+
+  database:
+    image: postgis/postgis:latest
+    environment:
+      POSTGRES_DB: government
+      POSTGRES_USER: government_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-container
+    environment:
+      PGADMIN_DEFAULT_EMAIL:
+      PGADMIN_DEFAULT_PASSWORD:
+    ports:
+      - "5050:80"
+    depends_on:
+      - database
+      
+volumes:
+  postgres_data:

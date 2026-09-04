@@ -191,15 +191,16 @@ body,
     padding: 7px 20px 7px 20px;
 }
 
-
+/*
 .info-panel-container {
-    /*border: 3px solid red;*/
+    border: 3px solid red;
 }
+
 
 .search-bar-container {
-    /*border: 3px solid blue;*/
+    border: 3px solid blue;
 }
-    
+*/
 
 .svg-pan-zoom-control-background {
     /*background-color: #4B4B4B !important;*/

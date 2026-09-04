@@ -10,8 +10,9 @@ import * as sidebar from "./infopanel.js";
 
 //let countyData = {}; // initalize dataObject
 const API_BASE = import.meta.env.VITE_FLASK_API_BASE; // Actual location located in .env file
-//Ion.defaultAccessToken = 'your_access_token';
-console.log("API_BASE:", API_BASE);
+Cesium.Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ACCESS_TOKEN;
+
+
 // Create a globe and remove the infobox and selection indicator
 const viewer = new Cesium.Viewer('map-container', {
     infoBox: false, // removes the infobox to the side of the page.
@@ -94,8 +95,6 @@ for (const file of geoJsonFiles) {
 
 
 
-
-
 // creates a way for the .hoverStyle property to be used
 const labelHoverHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
@@ -121,13 +120,7 @@ labelHoverHandler.setInputAction((movement) => {
         hoveredEntity = null;
     }
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-/*
-// Make the label clickable (This won't work I have to focus on the other handler)
-label.onClick = () => {
-    console.log("United States clicked!");
-    //goTo(boundary); // I want it to go to the thing that the label represents...
-};
-*/
+
 async function goTo(boundary0) {
     await viewer.flyTo(boundary0, {
         duration: 2.0,
