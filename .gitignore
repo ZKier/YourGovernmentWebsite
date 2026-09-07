@@ -45,3 +45,6 @@ congress_members.csv
 
 # Ignore GeoPackage
 *.gpkg
+
+# Ignore Zip
+*.zip
