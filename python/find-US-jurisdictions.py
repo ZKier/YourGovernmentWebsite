@@ -7,11 +7,14 @@ from urllib.parse import urljoin
 
 from pathlib import Path
 
+import unzip_file
+
 ### Get this script to import the most recent TIGER/line GeoPackage sub-state data ###
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 OUTPUT_DIRECTORY = SCRIPT_DIR.parent / "data"
 print("Output Director = ", OUTPUT_DIRECTORY)
+download_url = ''
 
 # Determine the time (In UTC for consistency)
 utc_now = datetime.now(ZoneInfo("UTC"))
@@ -69,3 +72,15 @@ if response.status_code == 200:
             print(f"Downloaded: {output_path}")
             break # break the loop.
 
+file_path = output_path
+while True:
+    unzip = input(f"Do you want to un-zip this file?: \"{download_url.split("/")[-1]}\" [Y/N]?\n").lower().strip()
+    if unzip in ['yes', 'y']:
+        output_path = unzip_file.unzip_file(file_path)
+        print(f"Unzipped: {output_path}")
+        break
+    elif unzip in ['no', 'n']:
+        print("User stated NO!")
+        break
+    else:
+        print("Please enter Y or N.\n")
