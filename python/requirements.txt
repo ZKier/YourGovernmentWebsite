@@ -1,4 +1,16 @@
+# Web backend
 Flask
 Flask-Cors
+
+# Geographic data processing
 geopandas
+
+# Environment variables
 python-dotenv
+
+# PostgreSQL database
+sqlalchemy
+psycopg[binary]
+
+# PostGIS / spacial SQL support
+geoalchemy2

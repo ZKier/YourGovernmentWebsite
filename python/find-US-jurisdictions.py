@@ -72,10 +72,18 @@ if response.status_code == 200:
             print(f"Downloaded: {output_path}")
             break # break the loop.
 
+# Renaming for readability
 file_path = output_path
+
+# Unzipping the file
 while True:
     unzip = input(f"Do you want to un-zip this file?: \"{download_url.split("/")[-1]}\" [Y/N]?\n").lower().strip()
     if unzip in ['yes', 'y']:
+        # Check to see if the potential unzipped file exists and if so don't unzip the file
+        output_path = Path(str(file_path).split(".zip")[0])
+        if output_path.exists():
+            print(f"Already Unzipped: {output_path}")
+            break
         output_path = unzip_file.unzip_file(file_path)
         print(f"Unzipped: {output_path}")
         break
