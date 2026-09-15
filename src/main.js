@@ -131,17 +131,6 @@ async function goTo(boundary0) {
         ),
     });
 }
-/* COMMENTED OUT TO SEE RESULTS
-//Have the camera fly to the US Center
-await viewer.flyTo(boundary, {
-  duration: 2.0,
-  offset: new Cesium.HeadingPitchRange(
-    Cesium.Math.toRadians(0), // compass direction'0 = Facing North' every +90 is a clockwise turn so E S W
-    Cesium.Math.toRadians(-90), // Angle that you look at the planet, -90 is looking stright down
-    0 // zoom
-  ),
-});
-*/
 
 // Display [Longitude / Latitude] values in the console on click.
 const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
@@ -233,116 +222,6 @@ sidebarIcon.addEventListener("click", () => {
     const wrapper = document.getElementById("info-panel-wrapper");
     wrapper.classList.toggle("closed");
 });
-
-// Pull json data
-// fetch("my-government-map\public\data\counties.json")
-//   .then(response => response.json())
-//   .then(data => {
-//     countyData = data;
-//   });
-
-// Pulls the svg file
-// fetch("svg/Usa_counties_large.svg")
-//     // when the file arrives convert it to text
-//     .then(response => response.text())
-//     // put the svg that you just pulled into the map-container element from document
-//     .then(svg => {
-//         document.getElementById("map-container").innerHTML = svg;
-        
-//         // check to see if the document was properly accessed
-//         //console.log(document.querySelector("#map-container svg"));
-
-//         // Organize zoom features from imported script in document.
-//         // svgPanZoom('#map-container svg', {
-//         //     zoomEnabled: true,
-//         //     controlIconsEnabled: true,
-//         //     fit: true,
-//         //     center: true,
-
-//         //     minZoom: 1, // 1 is the default size.
-//         //     maxZoom: 20 // 20 is 20x the size.
-//         // });
-
-//         // Prevent zooming out past the starting fitted view
-//         //const startingZoom = panZoomMap.getZoom();
-//         //panZoomMap.setMinZoom(startingZoom);
-
-//         // collect all of the states
-//         const states = document.querySelectorAll("g[id]");
-//         // collect all of the counties using ids that begin with 'c'
-//         const counties = document.querySelectorAll('path[id^="c"]');
-
-//         counties.forEach(county => {
-//             county.addEventListener("mouseenter", () => {
-//                 // go up the parents and find the closest <g>
-//                 const state = county.closest("g[id]");
-//                 // debugging
-//                 console.log("County:", county.id);
-//                 console.log("State:", state?.id);
-//                 state.querySelectorAll('path[id^="c"]').forEach(c => {
-//                     c.classList.add("state-hover");
-//                 });
-//             });
-
-//             county.addEventListener("mouseleave", () => {
-//                 const state = county.closest("g[id]");
-
-//                 state.querySelectorAll('path[id^="c"]').forEach(c => {
-//                     c.classList.remove("state-hover");
-//                 });
-//             });
-//         });
-
-//         // do what you want to each state
-//         counties.forEach(county => {
-//             county.addEventListener("click", () => {
-//                 const data = countyData[county.id]; // this is supposed to pull from database
-//                 const state = county.closest("g[id]");
-//                 const stateID = state.id.replace("_", " ");
-                
-//                 const countyID = document.getElementById(county.id);
-//                 const title = countyID.querySelector("title").textContent;
-//                 const countyName = title.split(",")[0];
-
-//                 // updating the sidebar
-//                 if (!data) {
-//                     // update nation dropdown
-//                     updateDropdownHeader("nation", "Nation: " + "United States of America");
-//                     // update state dropdown
-//                     updateDropdownHeader("state", stateID);
-//                     // update county dropdown
-//                     updateDropdownHeader("county", `${countyName} County`);
-//                     // update municipality dropdown
-//                     updateDropdownHeader("municipality", "Municipality: N/A");
-
-//                     // Populates the dropdown
-//                     createDropdownContent(data);
-
-//                     //createProfiles("nation"); // TESTING
-//                     return;
-//                 // Updated dropdown headers when the data is available
-//                 } else {
-//                     // update nation dropdown
-//                     updateDropdownHeader("nation", "Nation: " + "United States of America");
-//                     // update state dropdown
-//                     updateDropdownHeader("state", "State: " + data.state);
-//                     // update county dropdown
-//                     updateDropdownHeader("county", "County: " + data.county);
-//                     // update municipality dropdown
-//                     updateDropdownHeader("municipality", "Municipality: N/A");
-
-//                     // Populates the dropdown
-//                     createDropdownContent(data);
-
-//                     //createProfiles("nation"); // TESTING
-//                     return;
-//                     //<h2>${data.county}, ${data.state}</h2>
-//                     //<p><strong>Governor:</strong> ${data.governor}</p>
-//                     //<p><strong>Senators:</strong> ${data.senators.join(", ")}</p>
-//                 }
-//             });
-//         });      
-//     });
 
 function updateDropdownHeader(layer, content) {
     document.querySelector(`#${layer}-dropdown-bar`).innerHTML = `
@@ -515,3 +394,40 @@ function addHideUnhideDropdownBar(layer) {
     //const element = document.getElementById(`${layer}-dropdown-bar`);
     //element.classList.toggle("hidden");
 }
+
+// Have places get fetched when camera moves and is close to the surface
+viewer.camera.moveEnd.addEventListener(() => {
+    const cameraHeight =
+        viewer.camera.positionCartographic.height;
+    
+        const rectangle = viewer.camera.computeViewRectangle();
+
+    if (rectangle) {
+        const west = Cesium.Math.toDegrees(rectangle.west);
+        const south = Cesium.Math.toDegrees(rectangle.south);
+        const east = Cesium.Math.toDegrees(rectangle.east);
+        const north = Cesium.Math.toDegrees(rectangle.north);
+
+        console.log("West:", west);
+        console.log("South:", south);
+        console.log("East:", east);
+        console.log("North:", north);
+
+        console.log("Camera height:", cameraHeight);
+        if (cameraHeight < 500000) { fetchPlaces(west, south, east, north); }
+    }
+
+    
+});
+
+async function fetchPlaces(west, south, east, north) {
+    const response = await fetch(
+        `${API_BASE}/api/geography/place?west=${west}&south=${south}&east=${east}&north=${north}`
+    );
+    console.log(response);
+    const geojson = await response.json();
+    console.log(geojson);
+    const places = await Cesium.GeoJsonDataSource.load(geojson);
+    viewer.dataSources.add(places);
+}
+
