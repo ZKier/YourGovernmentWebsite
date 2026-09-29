@@ -429,5 +429,67 @@ async function fetchPlaces(west, south, east, north) {
     console.log(geojson);
     const places = await Cesium.GeoJsonDataSource.load(geojson);
     viewer.dataSources.add(places);
+
+    // Iterate through every geographic object
+    for (const entity of places.entities.values) {
+        const name = entity.name;
+        // It could be better to have python calculate this data
+        // Define the cartesian center
+
+        // Skip objects that aren't polygons
+        if (!entity.polygon) continue;
+
+        // Get the coordinates defining the polygon
+        const hierarchy = entity.polygon.hierarchy.getValue(
+            viewer.clock.currentTime
+        );
+        const positions = hierarchy.positions;
+
+        // Calculate the approximate center
+        const center = Cesium.BoundingSphere.fromPoints(positions).center;    
+
+        // Add a label to the created boundary
+        const label = viewer.entities.add({
+            id: entity.id + "-label",
+            position: center, // Trying to make this work
+
+            label: {
+                text: name,
+                font: "24px sans-serif",
+                fillColor: Cesium.Color.WHITE,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 2,
+
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+
+                // Creates a rectangular area behind the text
+                showBackground: true,
+                //backgroundColor: Cesium.Color.BLACK.withAlpha(0.01),
+                backgroundColor: Cesium.Color.TRANSPARENT,
+                backgroundPadding: new Cesium.Cartesian2(10, 6),
+
+                verticalOrigin: Cesium.VerticalOrigin.Center,
+                horizontalOrigin:Cesium.HorizontalOrigin.Center,
+                disableDepthTestDistance: 15000000, // maybe i can make an if condition for if the location is visible on the screen
+                //eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+
+                distanceDisplayCondition:
+                    new Cesium.DistanceDisplayCondition(
+                        0.0,
+                        30000000.0
+                    )
+            }
+        });
+        label.myBoundary = entity; // Stash the boundary this label represents
+        console.log("GeoJSON boundary label was successfully added to the globe!");
+
+        // Adds styling during hover
+        label.hoverStyle = {
+            fillColor: Cesium.Color.YELLOW,
+            outlineColor: Cesium.Color.RED
+        };
+        console.log("The inital styling for the .hoverStyle is added!");
+        //console.log(`'${file}' finished!`);
+    }
 }
 
