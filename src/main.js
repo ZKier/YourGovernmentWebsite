@@ -420,19 +420,53 @@ viewer.camera.moveEnd.addEventListener(() => {
     
 });
 
+const session_geoids = new Set(); // Designed for storing unique values
 async function fetchPlaces(west, south, east, north) {
+    // Call the API to get the place data in the given area
     const response = await fetch(
         `${API_BASE}/api/geography/place?west=${west}&south=${south}&east=${east}&north=${north}`
     );
     console.log(response);
     const geojson = await response.json();
     console.log(geojson);
-    const places = await Cesium.GeoJsonDataSource.load(geojson);
-    viewer.dataSources.add(places);
+
+    // Creates an incoming set
+    const incoming_geoids = new Set();
+    for(const feature of geojson.features) {
+        const geoid = String(feature.properties.geoid);
+        //console.log(geoid);
+        if (!session_geoids.has(geoid)) {incoming_geoids.add(geoid)} // add to incoming
+    
+        if (!session_geoids.has(geoid)) {session_geoids.add(geoid)} // add to session
+        
+    }
+
+    // session should be empty at first so all incoming should be added
+    // then the session should not be empty and all the new ids should be added
+    // the old ids should be removed
+    // but only the new ids should be added and the old ones should be removed 
+    for(const geoid of [...session_geoids]) {
+        if (!incoming_geoids.has(geoid)) {session_geoids.delete(geoid)} // add to incoming
+    }
+    
+    // Attempting to filter the geojson features that are returned
+    geojson.features = geojson.features.filter(feature => {
+        const geoid = String(feature.properties.geoid);
+        //console.log(feature.properties.geoid);
+        return incoming_geoids.has(geoid);
+    });
+    console.log(geojson);
+    const places = await Cesium.GeoJsonDataSource.load(geojson); // Creates a new GeoJsonDataSource object and converts the GeoJson features into Cesium entities
+    viewer.dataSources.add(places); // All the places are added to this dataSources
+
+
 
     // Iterate through every geographic object
     for (const entity of places.entities.values) {
         const name = entity.name;
+        const geoid = entity.geoid;
+
+        
         // It could be better to have python calculate this data
         // Define the cartesian center
 
@@ -476,19 +510,19 @@ async function fetchPlaces(west, south, east, north) {
                 distanceDisplayCondition:
                     new Cesium.DistanceDisplayCondition(
                         0.0,
-                        30000000.0
+                        300000.0
                     )
             }
         });
         label.myBoundary = entity; // Stash the boundary this label represents
-        console.log("GeoJSON boundary label was successfully added to the globe!");
+        //console.log("GeoJSON boundary label was successfully added to the globe!");
 
         // Adds styling during hover
         label.hoverStyle = {
             fillColor: Cesium.Color.YELLOW,
             outlineColor: Cesium.Color.RED
         };
-        console.log("The inital styling for the .hoverStyle is added!");
+        //console.log("The inital styling for the .hoverStyle is added!");
         //console.log(`'${file}' finished!`);
     }
 }
