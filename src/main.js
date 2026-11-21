@@ -420,7 +420,14 @@ viewer.camera.moveEnd.addEventListener(() => {
     
 });
 
+// Fetch the places in a given location at a certain zoom
+
+// Create the places data source object
+const placesDataSource = new Cesium.GeoJsonDataSource("placeData");
+viewer.dataSources.add(placesDataSource);
+
 const session_geoids = new Set(); // Designed for storing unique values
+
 async function fetchPlaces(west, south, east, north) {
     // Call the API to get the place data in the given area
     const response = await fetch(
@@ -430,35 +437,42 @@ async function fetchPlaces(west, south, east, north) {
     const geojson = await response.json();
     console.log(geojson);
 
-    // Creates an incoming set
-    const incoming_geoids = new Set();
-    for(const feature of geojson.features) {
-        const geoid = String(feature.properties.geoid);
+    // Creates an incoming set of geoIDs from the most recent API call
+    const incoming_geoids = new Set(geojson.features.map(feature => String(feature.properties.geoid)));
+    const new_geoids = new Set();
+    for(const geoid of incoming_geoids) { 
         //console.log(geoid);
-        if (!session_geoids.has(geoid)) {incoming_geoids.add(geoid)} // add to incoming
-    
-        if (!session_geoids.has(geoid)) {session_geoids.add(geoid)} // add to session
-        
+        if (!session_geoids.has(geoid)) {
+            new_geoids.add(geoid); // new geoids to add
+            session_geoids.add(geoid); // adds missing geoids to the session as well
+        } 
     }
-
-    // session should be empty at first so all incoming should be added
-    // then the session should not be empty and all the new ids should be added
-    // the old ids should be removed
-    // but only the new ids should be added and the old ones should be removed 
-    for(const geoid of [...session_geoids]) {
-        if (!incoming_geoids.has(geoid)) {session_geoids.delete(geoid)} // add to incoming
+ 
+    for(const geoid of [...session_geoids]) { // ..unpacks the set as an iterable
+        if (!incoming_geoids.has(geoid)) {session_geoids.delete(geoid);} // should delete the geoids not in this incoming session
+        // Remove the entity from a persistant datasource.
     }
     
     // Attempting to filter the geojson features that are returned
     geojson.features = geojson.features.filter(feature => {
         const geoid = String(feature.properties.geoid);
-        //console.log(feature.properties.geoid);
-        return incoming_geoids.has(geoid);
+        return session_geoids.has(geoid);
     });
     console.log(geojson);
-    const places = await Cesium.GeoJsonDataSource.load(geojson); // Creates a new GeoJsonDataSource object and converts the GeoJson features into Cesium entities
-    viewer.dataSources.add(places); // All the places are added to this dataSources
+    
 
+    const places = await Cesium.GeoJsonDataSource.load(geojson); // Creates a new GeoJsonDataSource object and converts the GeoJson features into Cesium entities
+    // Add place entities to the placeData dataSource
+    console.log(places);
+    for (const entity of places.entities.values) {
+        //console.log(entity);
+        if (!placesDataSource.entities.geoid) {
+            console.log("test");
+            console.log(entity.geoid);
+        }
+    } 
+    //viewer.dataSources.add(places); // All the places are added to viewer in a new datasource object
+    console.log(viewer.dataSources);
 
 
     // Iterate through every geographic object
