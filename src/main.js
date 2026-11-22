@@ -415,6 +415,7 @@ viewer.camera.moveEnd.addEventListener(() => {
 
         console.log("Camera height:", cameraHeight);
         if (cameraHeight < 500000) { fetchPlaces(west, south, east, north); }
+        if (cameraHeight > 500000) { removePlaces(); }
     }
 
     
@@ -430,9 +431,7 @@ const session_geoids = new Set(); // Designed for storing unique values
 
 async function fetchPlaces(west, south, east, north) {
     // Call the API to get the place data in the given area
-    const response = await fetch(
-        `${API_BASE}/api/geography/place?west=${west}&south=${south}&east=${east}&north=${north}`
-    );
+    const response = await fetch(`${API_BASE}/api/geography/place?west=${west}&south=${south}&east=${east}&north=${north}`);
     console.log(response);
     const geojson = await response.json();
     console.log(geojson);
@@ -458,28 +457,28 @@ async function fetchPlaces(west, south, east, north) {
         const geoid = String(feature.properties.geoid);
         return session_geoids.has(geoid);
     });
-    console.log(geojson);
+    console.log(geojson); // Still in geojson
     
 
     const places = await Cesium.GeoJsonDataSource.load(geojson); // Creates a new GeoJsonDataSource object and converts the GeoJson features into Cesium entities
+    
     // Add place entities to the placeData dataSource
-    console.log(places);
     for (const entity of places.entities.values) {
-        //console.log(entity);
-        if (!placesDataSource.entities.geoid) {
-            console.log("test");
-            console.log(entity.geoid);
-        }
-    } 
-    //viewer.dataSources.add(places); // All the places are added to viewer in a new datasource object
+        const geoid = entity.properties.geoid.getValue(); // this line accesses the geoid from the cesium entity.
+        
+        // Adds place to the placeData data source if new.
+        if (!new_geoids.has(geoid)) { placesDataSource.entities.add(entity); }
+        // removes placeData from the dataSource if it's not in session.
+        if (!session_geoids.has(geoid)) { placesDataSource.entities.remove(entity); }
+    }
     console.log(viewer.dataSources);
 
 
     // Iterate through every geographic object
-    for (const entity of places.entities.values) {
+    for (const entity of placesDataSource.entities.values) {
         const name = entity.name;
-        const geoid = entity.geoid;
-
+        const geoid = entity.properties.geoid.getValue();
+        //console.log(entity);
         
         // It could be better to have python calculate this data
         // Define the cartesian center
@@ -524,10 +523,11 @@ async function fetchPlaces(west, south, east, north) {
                 distanceDisplayCondition:
                     new Cesium.DistanceDisplayCondition(
                         0.0,
-                        300000.0
+                        500000.0
                     )
             }
         });
+        console.log(label);
         label.myBoundary = entity; // Stash the boundary this label represents
         //console.log("GeoJSON boundary label was successfully added to the globe!");
 
@@ -541,3 +541,6 @@ async function fetchPlaces(west, south, east, north) {
     }
 }
 
+async function removePlaces() {
+    placesDataSource.entities.removeAll();
+}
