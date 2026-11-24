@@ -439,6 +439,10 @@ async function fetchPlaces(west, south, east, north) {
     // Creates an incoming set of geoIDs from the most recent API call
     const incoming_geoids = new Set(geojson.features.map(feature => String(feature.properties.geoid)));
     const new_geoids = new Set();
+
+    // Create a map to contain entities and GeoIDs
+    const entitiesByGeoid = new Map();
+
     for(const geoid of incoming_geoids) { 
         //console.log(geoid);
         if (!session_geoids.has(geoid)) {
@@ -448,8 +452,12 @@ async function fetchPlaces(west, south, east, north) {
     }
  
     for(const geoid of [...session_geoids]) { // ..unpacks the set as an iterable
-        if (!incoming_geoids.has(geoid)) {session_geoids.delete(geoid);} // should delete the geoids not in this incoming session
-        // Remove the entity from a persistant datasource.
+        if (!incoming_geoids.has(geoid)) {
+            // should delete the geoids not in this incoming session
+            session_geoids.delete(geoid);
+        } 
+        
+
     }
     
     // Attempting to filter the geojson features that are returned
@@ -458,50 +466,54 @@ async function fetchPlaces(west, south, east, north) {
         return session_geoids.has(geoid);
     });
     console.log(geojson); // Still in geojson
+
+
     
 
     const places = await Cesium.GeoJsonDataSource.load(geojson); // Creates a new GeoJsonDataSource object and converts the GeoJson features into Cesium entities
     
     // Add place entities to the placeData dataSource
     for (const entity of places.entities.values) {
-        const geoid = entity.properties.geoid.getValue(); // this line accesses the geoid from the cesium entity.
+        // this line accesses the geoid from the cesium entity.
+        const geoid = entity.properties.geoid.getValue(); 
+
+        // Update the map
+        if (!entitiesByGeoid.has(geoid)) { entitiesByGeoid.set(geoid, []); } // Initalizes a key and empty value
+        entitiesByGeoid.get(geoid).push(entity); // adds the entity to the GeoID key
         
         // Adds place to the placeData data source if new.
         if (!new_geoids.has(geoid)) { placesDataSource.entities.add(entity); }
-        // removes placeData from the dataSource if it's not in session.
-        if (!session_geoids.has(geoid)) { placesDataSource.entities.remove(entity); }
+        
+        if (!session_geoids.has(geoid)) { 
+            // Removes placeData from the dataSource if it's not in session.
+            placesDataSource.entities.remove(entity); 
+            // Remove entites in the map based on GeoID if the GeoID is not in session.
+            entitiesByGeoid.remove(geoid);
+        }
     }
     console.log(viewer.dataSources);
+    
+    // Iterate through the Map and create the labels
+    for (const geoid of entitiesByGeoid.keys()) {
+        const firstEntity = entitiesByGeoid.get(geoid)[0];
+        const name = firstEntity.properties.name.getValue();
+        const geoID = firstEntity.properties.geoid.getValue();
+        const labelLatitude = firstEntity.properties.label_latitude.getValue();
+        const labelLongitude = firstEntity.properties.label_longitude.getValue();
 
+        // Prevent duplicate labels
+        if (viewer.entities.getById(geoID + "-label")) { continue; }
 
-    // Iterate through every geographic object
-    for (const entity of placesDataSource.entities.values) {
-        const name = entity.name;
-        const geoid = entity.properties.geoid.getValue();
-        //console.log(entity);
-        
-        // It could be better to have python calculate this data
-        // Define the cartesian center
-
-        // Skip objects that aren't polygons
-        if (!entity.polygon) continue;
-
-        // Get the coordinates defining the polygon
-        const hierarchy = entity.polygon.hierarchy.getValue(
-            viewer.clock.currentTime
-        );
-        const positions = hierarchy.positions;
-
-        // Calculate the approximate center
-        const center = Cesium.BoundingSphere.fromPoints(positions).center;    
-
+        // Create the label center
+        const center = Cesium.Cartesian3.fromDegrees(labelLongitude, labelLatitude);
         // Add a label to the created boundary
         const label = viewer.entities.add({
-            id: entity.id + "-label",
+            id: geoID + "-label",
             position: center, // Trying to make this work
 
             label: {
                 text: name,
+                properties: firstEntity.properties,
                 font: "24px sans-serif",
                 fillColor: Cesium.Color.WHITE,
                 outlineColor: Cesium.Color.BLACK,
@@ -514,7 +526,7 @@ async function fetchPlaces(west, south, east, north) {
                 //backgroundColor: Cesium.Color.BLACK.withAlpha(0.01),
                 backgroundColor: Cesium.Color.TRANSPARENT,
                 backgroundPadding: new Cesium.Cartesian2(10, 6),
-
+              
                 verticalOrigin: Cesium.VerticalOrigin.Center,
                 horizontalOrigin:Cesium.HorizontalOrigin.Center,
                 disableDepthTestDistance: 15000000, // maybe i can make an if condition for if the location is visible on the screen
@@ -527,8 +539,6 @@ async function fetchPlaces(west, south, east, north) {
                     )
             }
         });
-        console.log(label);
-        label.myBoundary = entity; // Stash the boundary this label represents
         //console.log("GeoJSON boundary label was successfully added to the globe!");
 
         // Adds styling during hover

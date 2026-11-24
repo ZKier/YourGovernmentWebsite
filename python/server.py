@@ -96,9 +96,20 @@ def get_place():
     north = request.args.get("north", type=float)
     try:
         # Build the query for the data that is desired by creating a box
+            # Returns (GeoID, Place Name, StateFP, PlaceFP, Geographic Boundaries, and a calculated longitude and latitude for the boundary)
         query = """
-            SELECT geoid, name, statefp, placefp, boundary
-            FROM us.place
+            SELECT p.geoid, p.name, p.statefp, p.placefp, p.boundary,
+                ST_X(ST_PointOnSurface(largest.geom)) AS label_longitude,
+                ST_Y(ST_PointOnSurface(largest.geom)) AS label_latitude
+            FROM us.place as p
+
+            CROSS JOIN LATERAL (
+                SELECT geom
+                FROM ST_Dump(p.boundary)
+                ORDER BY ST_Area(geom::geography) DESC
+                LIMIT 1
+            ) AS largest
+
             WHERE boundary && ST_MakeEnvelope(
             %(west)s,
             %(south)s,
