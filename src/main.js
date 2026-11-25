@@ -425,8 +425,8 @@ viewer.camera.moveEnd.addEventListener(() => {
 
 // Create the places data source object
 const placesDataSource = new Cesium.GeoJsonDataSource("placeData");
-viewer.dataSources.add(placesDataSource);
-
+await viewer.dataSources.add(placesDataSource);
+let nextEntityId = 0; // helps with id labeling
 const session_geoids = new Set(); // Designed for storing unique values
 
 async function fetchPlaces(west, south, east, north) {
@@ -435,6 +435,8 @@ async function fetchPlaces(west, south, east, north) {
     console.log(response);
     const geojson = await response.json();
     console.log(geojson);
+
+    for (const feature of geojson.features) {feature.id = String(nextEntityId++);}
 
     // Creates an incoming set of geoIDs from the most recent API call
     const incoming_geoids = new Set(geojson.features.map(feature => String(feature.properties.geoid)));
@@ -482,16 +484,26 @@ async function fetchPlaces(west, south, east, north) {
         entitiesByGeoid.get(geoid).push(entity); // adds the entity to the GeoID key
         
         // Adds place to the placeData data source if new.
-        if (!new_geoids.has(geoid)) { placesDataSource.entities.add(entity); }
-        
-        if (!session_geoids.has(geoid)) { 
-            // Removes placeData from the dataSource if it's not in session.
+        if (new_geoids.has(geoid)) { placesDataSource.entities.add(entity); }
+    }
+
+    for (const entity of [...placesDataSource.entities.values]) {
+        const geoid = String(entity.properties.geoid.getValue());
+        if (!session_geoids.has(geoid)) {
+            // Removes place from the dataSource if it's not in session.
             placesDataSource.entities.remove(entity); 
             // Remove entites in the map based on GeoID if the GeoID is not in session.
-            entitiesByGeoid.remove(geoid);
+            entitiesByGeoid.delete(geoid);
         }
     }
+
+
+
+    console.log(viewer.dataSources.contains(placesDataSource));
+    console.log(placesDataSource.entities.values.length);
+
     console.log(viewer.dataSources);
+    
     
     // Iterate through the Map and create the labels
     for (const geoid of entitiesByGeoid.keys()) {
